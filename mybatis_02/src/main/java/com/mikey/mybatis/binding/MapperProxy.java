@@ -1,5 +1,7 @@
 package com.mikey.mybatis.binding;
 
+import com.mikey.mybatis.session.SqlSession;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -14,11 +16,11 @@ public class MapperProxy<T>  implements InvocationHandler, Serializable {
     private static final long serialVersionUID = -6424540398559729838L;
 
     //接口名称+方法名称作为key
-    private Map<String, String> sqlSession;
+    private SqlSession sqlSession;
     private final Class<T> mapperInterface;
 
 
-    public MapperProxy(Map<String, String> sqlSession, Class<T> mapperInterface) {
+    public MapperProxy(SqlSession sqlSession, Class<T> mapperInterface) {
         this.sqlSession = sqlSession;
         this.mapperInterface = mapperInterface;
     }
@@ -30,7 +32,7 @@ public class MapperProxy<T>  implements InvocationHandler, Serializable {
         if(Object.class.equals(method.getDeclaringClass())) {
             return method.invoke(proxy,args);
         } else {
-            return "你被代理了 -----" + sqlSession.get(mapperInterface.getName()+"."+method.getName());
+            return sqlSession.selectOne(method.getName(),args);
         }
     }
 }
